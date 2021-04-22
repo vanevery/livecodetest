@@ -1,0 +1,87 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Video Effects</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/p5@1.3.1/lib/p5.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.47.0/codemirror.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.47.0/codemirror.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.47.0/mode/javascript/javascript.min.js"></script>
+
+    <script type="text/javascript" src="https://p5livemedia.itp.io/simplepeer.min.js"></script>
+    <script type="text/javascript" src="https://p5livemedia.itp.io/socket.io.js"></script>
+    <script type="text/javascript" src="https://p5livemedia.itp.io/p5livemedia.js"></script>        
+
+    <script type="text/javascript">
+
+        // Initial p5 sketch
+        let myVideo = null;
+        let p5lm = null;
+
+        function setup() {
+            createCanvas(400,400);
+
+            myVideo = createCapture(VIDEO, 
+                function(stream) {
+                    p5lm = new p5LiveMedia(this, "CAPTURE", stream, "codemirrorlivevideo")
+                    //p5lm.on('stream', gotStream);
+                    myVideo.hide();
+                }
+            );
+        }        
+        // function setup() {
+        //     createCanvas(400, 400);
+        // }
+
+        function draw() {
+            image(myVideo,0,0,width,height);
+        }
+
+        var runItButton;
+        window.addEventListener('load', function() {
+            console.log('adding codeMirror object');
+            window.myCodeMirror = CodeMirror.fromTextArea(document.getElementById("txtScript"), {
+                lineNumbers: false,
+                mode: 'javascript',
+            });
+            // window.myCodeMirror.on('change', editor => {
+            //     // console.log(editor.getValue());   
+            //     //var code = window.myCodeMirror.getValue();
+            // });
+            // window.myCodeMirror.on('keydown', editor => {
+            //     //do whatever you want
+            // });
+
+            runItButton = document.getElementById('runIt');
+            runItButton.addEventListener('click', function() {
+                var code = window.myCodeMirror.getValue();
+                //code += "\nsetup();"; // run setup()
+                console.log(code);  
+
+                // Previous attempts
+                //eval(window.myCodeMirror.getValue());
+                //iframe.src = "data:text/html;charset=utf-8," + encodeURI(new_textarea.value)
+
+                var script = document.createElement('script');
+                script.textContent = code;
+                document.body.appendChild(script);
+
+            });
+        });  
+    </script>
+</head>
+<body>
+    <textarea id="txtScript" cols="80" rows="40">
+function draw() {
+    image(myVideo,0,0,width,height);
+    fill(255,0,0);
+    ellipse(mouseX,mouseY,50,50)
+}        
+    </textarea>
+    <br />
+    <input type="button" id="runIt" value="run">
+</body>
+</html>
